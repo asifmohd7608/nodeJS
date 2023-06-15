@@ -1,0 +1,15 @@
+@mixin font-small-gray(
+  $size: 0.8rem,
+  $weight: 500,
+  $color: rgb(112, 110, 110)
+) {
+  font-size: $size;
+  font-weight: $weight;
+  color: $color;
+}
+@mixin clipPath($size: 3em, $color: black, $path: circle(47.8% at 100% 0)) {
+  background-color: $color;
+  width: $size;
+  height: $size;
+  clip-path: $path;
+}
