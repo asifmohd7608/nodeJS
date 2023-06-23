@@ -57,6 +57,9 @@ const book = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    File_Path: {
+      type: DataTypes.STRING,
+    },
   },
   {
     timestamps: false,

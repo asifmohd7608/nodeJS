@@ -4,11 +4,15 @@ const {
   signInAdmin,
   renderAdminSignUpPage,
   signUpAdmin,
+  logoutAdmin,
 } = require("../controllers/authController");
+const { checkIsAdmin } = require("../middlewares/auth");
+const { validateAuthForm } = require("../middlewares/formValidations");
 
-router.get("/login/admin", renderAdminLoginPage);
-router.post("/login/admin", signInAdmin);
-router.get("/signup/admin", renderAdminSignUpPage);
-router.post("/signup/admin", signUpAdmin);
+router.get("/", checkIsAdmin, renderAdminLoginPage);
+router.post("/", validateAuthForm, signInAdmin);
+router.get("/signup/admin", checkIsAdmin, renderAdminSignUpPage);
+router.post("/signup/admin", validateAuthForm, signUpAdmin);
+router.get("/logout/admin", checkIsAdmin, logoutAdmin);
 
 module.exports = router;

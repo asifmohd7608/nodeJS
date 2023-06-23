@@ -13,10 +13,12 @@
     <th>Available copies</th>
     <th>Availability</th>
     <th>Edit</th>
+    <th>Cover Image</th>
   </tr>
   <tr>
     {{#each fetchedData}}
-      <tr><td>{{this.dataValues.Book_Title}}</td>
+      <tr>
+        <td>{{this.dataValues.Book_Title}}</td>
         <td>{{this.dataValues.ISBN}}</td>
         <td>{{this.dataValues.Author}}</td>
         <td>{{this.dataValues.category.category_name}}</td>
@@ -29,10 +31,19 @@
             In stock
           {{else}}
             out of stock
-          {{/if}}</td>
-        <td><button class="book_edit_btn"><a
-              href="/editbook/{{this.dataValues.id}}"
-            >Edit</a></button></td></tr>
+          {{/if}}
+        </td>
+        <td>
+          <button class="book_edit_btn">
+            <a href="/books/editbook/{{this.dataValues.id}}">Edit</a>
+          </button>
+        </td>
+        <td><img
+            src="{{this.File_Path}}"
+            alt="Book Cover"
+            class="table_book_cover"
+          /></td>
+      </tr>
 
     {{/each}}
 
@@ -40,5 +51,5 @@
 </table>
 
 <div class="button_container">
-  <button><a href="/addbook">Create a Book</a></button>
+  <button><a href="/books/addbook">Create a Book</a></button>
 </div>

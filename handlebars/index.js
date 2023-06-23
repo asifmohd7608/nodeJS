@@ -7,12 +7,14 @@ const path = require("path");
 const hbs = require("hbs");
 const { db } = require("./config/database");
 const router = require("./routes");
+const cookieParser = require("cookie-parser");
 
 app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cookieParser());
 
 //partials & helpers--------------------------
 hbs.registerPartials(__dirname + "/views/partials");
@@ -45,6 +47,7 @@ hbs.registerHelper("ifequals", function (option, value, trueValue, falseValue) {
 //syncing db--------------------
 try {
   // db.admin.sync({ alter: true });
+  // db.books.sync({ alter: true });
   db.sequelize.sync({ alter: true });
 } catch (error) {
   console.log(error);

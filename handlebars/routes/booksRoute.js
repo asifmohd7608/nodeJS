@@ -4,7 +4,6 @@ const {
   validateAddForm,
   validateEditForm,
 } = require("../middlewares/formValidations");
-const { checkIsAdmin } = require("../middlewares/auth");
 const {
   renderAddForm,
   renderEditForm,
@@ -12,11 +11,12 @@ const {
   fetchBooksData,
   editBook,
 } = require("../controllers/booksController");
+const { upload } = require("../middlewares/fileUpload");
 
-router.get("/", checkIsAdmin, fetchBooksData);
-router.get("/addbook", checkIsAdmin, renderAddForm);
-router.post("/addbook", checkIsAdmin, validateAddForm, addBook);
-router.get("/editbook/:id", checkIsAdmin, renderEditForm);
-router.post("/editbook/:id", checkIsAdmin, validateEditForm, editBook);
+router.get("/", fetchBooksData);
+router.get("/addbook", renderAddForm);
+router.post("/addbook", upload.single("file"), validateAddForm, addBook);
+router.get("/editbook/:id", renderEditForm);
+router.post("/editbook/:id", upload.single("file"), validateEditForm, editBook);
 
 module.exports = router;

@@ -1,5 +1,5 @@
 <h2 class="add_book_form_header">Add a Book</h2>
-<form action="/addbook" method="post">
+<form action="/books/addbook" method="post" enctype="multipart/form-data">
   <div class="book_add_form">
     <div class="form_name"><label for="name">Name</label>
       <input
@@ -112,6 +112,13 @@
       </div>
       {{#if errors.Available}}
         <span class="error_msg">{{errors.Available.msg}}</span>
+      {{/if}}
+    </div>
+    <div class="form_file_upload">
+      <label for="">Upload cover image</label>
+      <input type="file" name="file"  >
+      {{#if errors.file}}
+        <span class="error_msg">{{errors.file.msg}}</span>
       {{/if}}
     </div>
     <button type="submit" class="form_button">CREATE</button>

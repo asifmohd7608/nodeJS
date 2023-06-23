@@ -62,6 +62,7 @@ const addBook = async (req, res) => {
       Available,
       Price,
       Category_Type,
+      File_Path: `uploads/books/images/${req.file.filename}`,
     });
     data ? res.redirect("/") : res.json({ success: false });
   } catch (error) {
@@ -95,10 +96,11 @@ const editBook = async (req, res) => {
         Available,
         Price,
         Category_Type,
+        File_Path: `uploads/books/images/${req.file.filename}`,
       },
       { where: { id } }
     );
-    data ? res.redirect("/") : res.send("error");
+    data ? res.redirect("/books") : res.send("error");
   } catch (err) {
     res.send("error");
   }

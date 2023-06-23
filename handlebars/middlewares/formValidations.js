@@ -1,5 +1,6 @@
 const { validationResult, body } = require("express-validator");
 const { db } = require("../config/database");
+const fs = require("fs");
 
 const errorHandler = (req, res, next, view, errors, data) => {
   console.log(errors);
@@ -102,9 +103,26 @@ const validateAddForm = [
       return true;
     }
   }),
+  body("file").custom((value, { req }) => {
+    if (!req.file) {
+      throw new Error("Please upload an image for book cover");
+    } else {
+      return true;
+    }
+  }),
   async (req, res, next) => {
     const errors = validationResult(req).mapped();
     if (Object.keys(errors).length > 0) {
+      //code to delete uploaded file
+      fs.unlink(`public/uploads/books/images/${req?.file?.filename}`, (err) => {
+        if (err) {
+          console.log(err);
+          console.log("error removing file");
+        } else {
+          console.log("removed file");
+        }
+      });
+
       const {
         Book_Title,
         ISBN,
@@ -202,9 +220,7 @@ const validateEditForm = [
     .withMessage("No of Current Copies field cant be empty")
     .bail()
     .custom((value, { req }) => {
-      if (!parseInt(value) >= 1) {
-        throw new Error("Current copies cant be less than 1");
-      } else if (parseInt(value) > req.body.No_Of_Copies_Actual) {
+      if (parseInt(value) > req.body.No_Of_Copies_Actual) {
         throw new Error(
           "current copies value cant be greater than actual copies value"
         );
@@ -231,6 +247,20 @@ const validateEditForm = [
       throw new Error(
         `Availability cant be out of stock as current value is ${current}`
       );
+    } else {
+      return true;
+    }
+  }),
+  body("file").custom(async (value, { req }) => {
+    const { id } = req.params;
+    const bookData = await db.books.findByPk(id);
+    const path = bookData?.File_Path;
+    console.log(`edit : ${req.file} ${path}`);
+    if (!req.file && !path) {
+      console.log(`req.file : ${req.file}`);
+      throw new Error("Please upload an image for book cover");
+    } else if (req.file && path) {
+      throw new Error("Only one image required, please remove an image");
     } else {
       return true;
     }
@@ -279,4 +309,24 @@ const validateEditForm = [
     }
   },
 ];
-module.exports = { validateAddForm, validateEditForm };
+const validateAuthForm = [
+  body("Email")
+    .notEmpty()
+    .withMessage("Email field cant be empty")
+    .bail()
+    .isEmail()
+    .withMessage("Invalid Email format"),
+  (req, res, next) => {
+    const errors = validationResult(req).mapped();
+    if (Object.keys(errors).length > 0) {
+      if (req.originalUrl === "/") {
+        res.render("pages/adminLogin", { errors });
+      } else {
+        res.render("pages/adminSignUp", { errors });
+      }
+    } else {
+      next();
+    }
+  },
+];
+module.exports = { validateAddForm, validateEditForm, validateAuthForm };

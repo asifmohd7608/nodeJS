@@ -1,5 +1,5 @@
 <h2 class="add_book_form_header">Edit Book</h2>
-<form action="/editbook/{{data.id}}" method="post">
+<form action="/books/editbook/{{data.id}}" method="post" enctype="multipart/form-data">
   <div class="book_add_form"> 
     <div class="form_name">
       <label for="name">Name</label>
@@ -82,6 +82,16 @@
       <span class="error_msg">{{errors.Available.msg}}</span>
       {{/if}}
   </div>
+  <div class="form_image">
+    <img src="/{{data.File_Path}}" alt="Book Cover">
+  </div>
+  <div class="form_file_upload">
+      <label for="">Upload cover image</label>
+      <input type="file" name="file"  >
+      {{#if errors.file}}
+        <span class="error_msg">{{errors.file.msg}}</span>
+      {{/if}}
+    </div>
   <button type="submit" class="form_button">Update</button>
   </div>
 </form>
