@@ -1,0 +1,44 @@
+<h2 class="books_heading">Books</h2>
+
+<table class="books_table">
+  <tr>
+    <th>Name</th>
+    <th>ISBN</th>
+    <th>Author</th>
+    <th>Category</th>
+    <th>Year of Publish</th>
+    <th>Price</th>
+    <th>Language</th>
+    <th>Total Copies</th>
+    <th>Available copies</th>
+    <th>Availability</th>
+    <th>Edit</th>
+  </tr>
+  <tr>
+    {{#each fetchedData}}
+      <tr><td>{{this.dataValues.Book_Title}}</td>
+        <td>{{this.dataValues.ISBN}}</td>
+        <td>{{this.dataValues.Author}}</td>
+        <td>{{this.dataValues.category.category_name}}</td>
+        <td>{{this.dataValues.Publication_Year}}</td>
+        <td>{{this.dataValues.Price}}</td>
+        <td>{{this.dataValues.Language}}</td>
+        <td>{{this.dataValues.No_Of_Copies_Actual}}</td>
+        <td>{{this.dataValues.No_Of_Copies_Current}}</td>
+        <td>{{#if this.dataValues.Available}}
+            In stock
+          {{else}}
+            out of stock
+          {{/if}}</td>
+        <td><button class="book_edit_btn"><a
+              href="/editbook/{{this.dataValues.id}}"
+            >Edit</a></button></td></tr>
+
+    {{/each}}
+
+  </tr>
+</table>
+
+<div class="button_container">
+  <button><a href="/addbook">Create a Book</a></button>
+</div>

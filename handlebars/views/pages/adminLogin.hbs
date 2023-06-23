@@ -1,0 +1,11 @@
+<form action="/auth/login/admin" method="post" class="admin_signup_form">
+  <h2>Login</h2>
+  {{#if message}}
+    <span class="error_msg">{{message}}</span>
+  {{/if}}
+  <label for="email">Enter Mail Id</label>
+  <input type="email" id="email" name="Email" />
+  <label for="password">Enter Password</label>
+  <input type="password" id="password" name="Password" />
+  <button type="submit">Login</button>
+</form>

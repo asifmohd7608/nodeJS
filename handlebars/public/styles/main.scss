@@ -1,0 +1,142 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.wrapper {
+  max-width: 1200px;
+  margin: 0 4rem;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  margin: 2rem 0;
+}
+.navbar_right {
+  display: flex;
+  gap: 1rem;
+}
+.books_heading {
+  max-width: fit-content;
+  margin: 1rem auto;
+}
+.books_table {
+  max-width: fit-content;
+  margin: 3rem auto;
+  border: 2px solid black;
+  td,
+  th {
+    padding: 0.5rem;
+    border: 2px solid black;
+  }
+  .book_edit_btn {
+    max-width: fit-content;
+    padding: 0.3rem 0.8rem;
+  }
+}
+
+.button_container {
+  max-width: fit-content;
+  margin: 1rem auto;
+  > button {
+    padding: 0.5rem 2rem;
+  }
+}
+.add_book_form_header {
+  max-width: fit-content;
+  margin: 2rem auto;
+}
+.book_add_form {
+  display: grid;
+  // grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  border: 2px solid rgb(201, 201, 201);
+  border-radius: 0.5rem;
+  padding: 2rem 2rem;
+  margin: 1rem auto;
+  grid-template-areas:
+    "name name author author "
+    "isbn isbn language language  "
+    "categories categories date date "
+    "actual actual current current"
+    " price price  availability availability ";
+  .form_name {
+    grid-area: name;
+  }
+  .form_isbn {
+    grid-area: isbn;
+  }
+  .form_author {
+    grid-area: author;
+  }
+  .form_categories {
+    grid-area: categories;
+  }
+  .form_date {
+    grid-area: date;
+  }
+  .form_price {
+    grid-area: price;
+  }
+  .form_language {
+    grid-area: language;
+  }
+  .form_actual_copies {
+    grid-area: actual;
+  }
+  .form_current_copies {
+    grid-area: current;
+  }
+  .form_availability {
+    grid-area: availability;
+  }
+
+  input {
+    padding: 0.5rem 1rem;
+  }
+  select {
+    padding: 0.5rem 1rem;
+  }
+  .form_radio_container {
+    display: flex;
+    gap: 1rem;
+  }
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  button {
+    padding: 0.5rem 0.8rem;
+    grid-column: 1 / span 2;
+    margin: 0.5rem auto 0 auto;
+  }
+}
+.error_msg {
+  max-width: fit-content;
+  color: red;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+.admin_signup_form {
+  max-width: 400px;
+  display: grid;
+  gap: 1rem;
+  margin: 5rem auto 0 auto;
+  border: 1px solid rgb(134, 134, 134);
+  padding: 2rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 15px 5px rgb(189, 189, 189);
+  input {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 2px solid rgb(134, 134, 134);
+  }
+  button {
+    max-width: fit-content;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem auto 0 auto;
+  }
+}

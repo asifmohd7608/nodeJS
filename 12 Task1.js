@@ -9,7 +9,7 @@ const server = http.createServer((req, res) => {
   } else if (req.url === "/list") {
     const files = fs.readdirSync(__dirname);
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(files));
+    res.end(JSON.stringify({ files, method: req.method }));
   } else if (req.url === "/read") {
     if (fs.existsSync("./example2/file.txt")) {
       const data = fs.readFileSync("./example2/file.txt", "utf-8");

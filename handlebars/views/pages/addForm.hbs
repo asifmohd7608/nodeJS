@@ -1,0 +1,119 @@
+<h2 class="add_book_form_header">Add a Book</h2>
+<form action="/addbook" method="post">
+  <div class="book_add_form">
+    <div class="form_name"><label for="name">Name</label>
+      <input
+        type="text"
+        id="name"
+        name="Book_Title"
+        value="{{data.Book_Title}}"
+      />
+      {{#if errors.Book_Title}}
+        <span class="error_msg">{{errors.Book_Title.msg}}</span>
+      {{/if}}
+    </div>
+    <div class="form_isbn"><label for="name">ISBN</label>
+      <input type="text" id="isbn" name="ISBN" value="{{data.ISBN}}" />
+      {{#if errors.ISBN}}
+        <span class="error_msg">{{errors.ISBN.msg}}</span>
+      {{/if}}
+    </div>
+
+    <div class="form_author"><label for="name">Author</label>
+      <input type="text" id="author" name="Author" value="{{data.Author}}" />
+      {{#if errors.Author}}
+        <span class="error_msg">{{errors.Author.msg}}</span>
+      {{/if}}
+    </div>
+    <div class="form_categories"><label for="Category_Type">Category</label>
+      <select name="Category_Type" id="Category_Type">
+        {{#each categories}}
+          type:{{@root.categoryType}}
+          <option
+            value="{{this.id}}"
+            {{ifequals this.id ../categoryType "selected" ""}}
+          >{{this.category_name}} 
+          </option>
+        {{/each}}
+      </select></div>
+    <div class="form_date"><label for="publishyear">Year of Publishing</label>
+      <input
+        type="date"
+        id="publishyear"
+        name="Publication_Year"
+        value="{{data.Publication_Year}}"
+      />
+      {{#if errors.Publication_Year}}
+        <span class="error_msg">{{errors.Publication_Year.msg}}</span>
+      {{/if}}
+    </div>
+    <div class="form_price"><label for="price">Price</label>
+      <input type="number" id="price" name="Price" value="{{data.Price}}" />
+      {{#if errors.Price}}
+        <span class="error_msg">{{errors.Price.msg}}</span>
+      {{/if}}
+    </div>
+    <div class="form_language"><label for="language">Language</label>
+      <input
+        type="text"
+        id="language"
+        name="Language"
+        value="{{data.Language}}"
+      />
+      {{#if errors.Language}}
+        <span class="error_msg">{{errors.Language.msg}}</span>
+      {{/if}}
+    </div>
+    <div class="form_actual_copies"><label for="No_Of_Copies_Actual">No of
+        copies actual</label>
+      <input
+        type="number"
+        id="No_Of_Copies_Actual"
+        name="No_Of_Copies_Actual"
+        value="{{data.No_Of_Copies_Actual}}"
+      />
+      {{#if errors.No_Of_Copies_Actual}}
+        <span class="error_msg">{{errors.No_Of_Copies_Actual.msg}}</span>
+      {{/if}}
+    </div>
+    <div class="form_current_copies">
+      <label for="No_Of_Copies_Current">No of copies available</label>
+      <input
+        type="number"
+        id="No_Of_Copies_Current"
+        name="No_Of_Copies_Current"
+        value="{{data.No_Of_Copies_Current}}"
+      />
+      {{#if errors.No_Of_Copies_Current}}
+        <span class="error_msg">{{errors.No_Of_Copies_Current.msg}}</span>
+      {{/if}}
+    </div>
+    <div class="form_availability">
+      <label for="availability">Availability</label>
+      <div class="form_radio_container">
+        <div>
+          <input
+            type="radio"
+            id="instock"
+            value="1"
+            name="Available"
+            {{ifequals data.Available "1" "checked" ""}}
+          />
+          <label for="instock">In Stock</label></div>
+        <div>
+          <input
+            type="radio"
+            id="outofstock"
+            value="0"
+            name="Available"
+            {{ifequals data.Available "0" "checked" ""}}
+          />
+          <label for="outofstock">Out of Stock</label></div>
+      </div>
+      {{#if errors.Available}}
+        <span class="error_msg">{{errors.Available.msg}}</span>
+      {{/if}}
+    </div>
+    <button type="submit" class="form_button">CREATE</button>
+  </div>
+</form>
