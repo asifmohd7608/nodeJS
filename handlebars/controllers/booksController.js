@@ -83,26 +83,26 @@ const editBook = async (req, res) => {
     Price,
     Category_Type,
   } = req.body;
+  const updatedData = {
+    ISBN,
+    Book_Title,
+    Author,
+    Publication_Year,
+    Language,
+    No_Of_Copies_Actual,
+    No_Of_Copies_Current,
+    Available,
+    Price,
+    Category_Type,
+  };
+  if (req?.file?.filename) {
+    updatedData.File_Path = `uploads/books/images/${req.file.filename}`;
+  }
   try {
-    const data = await db.books.update(
-      {
-        ISBN,
-        Book_Title,
-        Author,
-        Publication_Year,
-        Language,
-        No_Of_Copies_Actual,
-        No_Of_Copies_Current,
-        Available,
-        Price,
-        Category_Type,
-        File_Path: `uploads/books/images/${req.file.filename}`,
-      },
-      { where: { id } }
-    );
+    const data = await db.books.update(updatedData, { where: { id } });
     data ? res.redirect("/books") : res.send("error");
   } catch (err) {
-    res.send("error");
+    res.send("error in route");
   }
 };
 

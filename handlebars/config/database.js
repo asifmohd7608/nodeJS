@@ -16,6 +16,7 @@ db.sequelize = sequelize;
 db.books = require("../models/books");
 db.category = require("../models/category");
 db.admin = require("../models/admin");
+db.customer = require("../models/customer");
 
 db.category.hasOne(db.books, { foreignKey: "Category_Type" });
 db.books.belongsTo(db.category, { foreignKey: "Category_Type" });

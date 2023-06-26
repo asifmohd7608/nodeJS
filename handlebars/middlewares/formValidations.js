@@ -1,5 +1,6 @@
 const { validationResult, body } = require("express-validator");
 const { db } = require("../config/database");
+const bcrypt = require("bcrypt");
 const fs = require("fs");
 
 const errorHandler = (req, res, next, view, errors, data) => {
@@ -255,12 +256,19 @@ const validateEditForm = [
     const { id } = req.params;
     const bookData = await db.books.findByPk(id);
     const path = bookData?.File_Path;
-    console.log(`edit : ${req.file} ${path}`);
     if (!req.file && !path) {
       console.log(`req.file : ${req.file}`);
       throw new Error("Please upload an image for book cover");
     } else if (req.file && path) {
-      throw new Error("Only one image required, please remove an image");
+      fs.unlink(`public/${path}`, (err) => {
+        if (err) {
+          console.log(err);
+          console.log("error removing file");
+        } else {
+          console.log("removed file");
+        }
+      });
+      return true;
     } else {
       return true;
     }
@@ -268,6 +276,16 @@ const validateEditForm = [
   async (req, res, next) => {
     const errors = validationResult(req).mapped();
     if (Object.keys(errors).length > 0) {
+      //code to delete uploaded file
+      fs.unlink(`public/uploads/books/images/${req?.file?.filename}`, (err) => {
+        if (err) {
+          console.log(err);
+          console.log("error removing file");
+        } else {
+          console.log("removed file");
+        }
+      });
+
       const {
         Book_Title,
         ISBN,
@@ -302,7 +320,7 @@ const validateEditForm = [
           errorHandler(req, res, next, "pages/editForm", errors, formData);
         })
         .catch((err) => {
-          res.send("error");
+          res.send("error in validation");
         });
     } else {
       next();
@@ -329,4 +347,143 @@ const validateAuthForm = [
     }
   },
 ];
-module.exports = { validateAddForm, validateEditForm, validateAuthForm };
+
+const validateUserSignupForm = [
+  body("First_Name")
+    .notEmpty()
+    .withMessage("This field cant be empty")
+    .bail()
+    .isString()
+    .withMessage("this field value should be of alphabets"),
+  body("Last_Name")
+    .notEmpty()
+    .withMessage("This name field cant be empty")
+    .bail()
+    .isString()
+    .withMessage("this field value should be of alphabets"),
+  body("Address")
+    .notEmpty()
+    .withMessage("This name field cant be empty")
+    .bail()
+    .isString()
+    .withMessage("this field value should be of alphabets"),
+  body("City")
+    .notEmpty()
+    .withMessage("this field cant be empty")
+    .bail()
+    .isString()
+    .withMessage("this field value should be of alphabets"),
+  body("Password").notEmpty().withMessage("this field cant be empty").bail(),
+
+  body("Email")
+    .notEmpty()
+    .withMessage("Email id cant be empty")
+    .bail()
+    .isEmail()
+    .withMessage("invalid email id")
+    .custom(async (value, { req }) => {
+      // console.log(`email : ${value}`);
+
+      const customers = await db.customer.findAll({
+        where: {
+          Email: value,
+        },
+      });
+
+      if (customers.length < 1) {
+        return true;
+      } else {
+        throw new Error("This email is already registered");
+      }
+    }),
+
+  body("Mobile")
+    .notEmpty()
+    .withMessage("This name field cant be empty")
+    .bail()
+    .isNumeric()
+    .withMessage("this field value should be Integers")
+    .custom(async (value, { req }) => {
+      console.log(`mobile : ${value}`);
+      const customers = await db.customer.findAll({
+        where: {
+          Mobile: value,
+        },
+      });
+
+      if (customers.length < 1) {
+        return true;
+      } else {
+        throw new Error("This Mobile Number is already registered");
+      }
+    }),
+
+  (req, res, next) => {
+    const errors = validationResult(req).mapped();
+    console.log(`errors in user signup :`);
+    console.log(errors);
+    if (Object.keys(errors).length > 0) {
+      const { Email, First_Name, Last_Name, Address, Mobile, City, Password } =
+        req.body;
+      const formData = {
+        Email,
+        First_Name,
+        Last_Name,
+        Address,
+        Mobile,
+        City,
+      };
+      res.render("pages/forms/userSignUp", { errors, formData });
+    } else {
+      next();
+    }
+  },
+];
+
+const validateUserLoginForm = [
+  body("Email")
+    .notEmpty()
+    .withMessage("Email id cant be empty")
+    .bail()
+    .custom(async (value, { req }) => {
+      const customer = await db.customer.findAll({ where: { Email: value } });
+      if (!customer.length > 0) {
+        throw new Error("email id is incorrect");
+      } else {
+        return true;
+      }
+    }),
+  body("Password")
+    .notEmpty()
+    .withMessage("Password field cant be empty")
+    .custom(async (value, { req }) => {
+      const customer = await db.customer.findAll({
+        where: { Email: req.body.Email },
+      });
+      const result = await bcrypt.compare(value, customer[0].Password);
+      if (!result) {
+        throw new Error("password is incorrect");
+      } else {
+        req.customerId = customer[0].id;
+        return true;
+      }
+    }),
+  (req, res, next) => {
+    const errors = validationResult(req).mapped();
+    console.log(errors);
+    const { Email } = req.body;
+    const formData = { Email };
+    if (Object.keys(errors).length > 0) {
+      res.render("pages/forms/userLogin", { errors, formData });
+    } else {
+      next();
+    }
+  },
+];
+module.exports = {
+  validateAddForm,
+  validateEditForm,
+  validateAuthForm,
+  validateUserSignupForm,
+  validateUserLoginForm,
+};

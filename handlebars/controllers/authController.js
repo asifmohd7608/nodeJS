@@ -1,4 +1,5 @@
 const { db } = require("../config/database");
+const { Op } = require("sequelize");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -84,10 +85,78 @@ const logoutAdmin = (req, res) => {
   res.redirect("/");
 };
 
+//users-----------------------------------
+
+const renderUserSignupPage = (req, res) => {
+  res.render("pages/forms/userSignUp");
+};
+const renderUserLoginPage = (req, res) => {
+  res.render("pages/forms/userLogin");
+};
+
+const signUpUser = async (req, res) => {
+  const { Email, First_Name, Last_Name, Address, Mobile, City, Password } =
+    req.body;
+  console.log({
+    Email,
+    First_Name,
+    Last_Name,
+    Address,
+    Mobile,
+    City,
+    Password,
+  });
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(Password, salt);
+  await db.customer
+    .create({
+      Email,
+      First_Name,
+      Last_Name,
+      Address,
+      City,
+      Mobile,
+      Password: hashedPassword,
+    })
+    .then(() => {
+      const token = jwt.sign({ Email, First_Name }, process.env.JWT_SECRET, {
+        expiresIn: "72h",
+      });
+      res.cookie("UserToken", token, { httpOnly: true });
+      // res.redirect("/users/purchase");
+      res.send("success in signup user");
+    })
+    .catch((err) => {
+      console.log(err);
+      res.send("error in signup");
+    });
+
+  //else encrypt password and create an account and then send a cookie and redirect to /users/purchase
+};
+const logInUser = async (req, res) => {
+  ////////check--------------------
+  const customer = await db.customer.findByPk(req.customerId); //userId from log in validation
+  const userToken = jwt.sign(
+    { Email: customer.Email, userName: customer.First_Name },
+    process.env.JWT_SECRET
+  );
+  res.cookie("userToken", userToken, { expiresIn: "72h" });
+  res.redirect("/users/purchase");
+};
+const logoutUser = (req, res) => {
+  res.clearCookie("userToken");
+  res.redirect("/login/user");
+};
+
 module.exports = {
   renderAdminLoginPage,
   renderAdminSignUpPage,
   signInAdmin,
   signUpAdmin,
   logoutAdmin,
+  renderUserSignupPage,
+  renderUserLoginPage,
+  signUpUser,
+  logInUser,
+  logoutUser,
 };

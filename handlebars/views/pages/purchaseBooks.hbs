@@ -1,0 +1,11 @@
+<h1>Purchase Books</h1>
+
+<div class="books_container">
+  {{#each books}}
+    <div class="book_card">
+      <img class="book_card_image" src="/{{this.File_Path}}" alt="book cover" />
+      <p>{{this.Book_Title}}</p>
+      <button>Add to cart</button>
+    </div>
+  {{/each}}
+</div>

@@ -48,6 +48,7 @@ hbs.registerHelper("ifequals", function (option, value, trueValue, falseValue) {
 try {
   // db.admin.sync({ alter: true });
   // db.books.sync({ alter: true });
+  // db.customer.sync({ alter: true });
   db.sequelize.sync({ alter: true });
 } catch (error) {
   console.log(error);
