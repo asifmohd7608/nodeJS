@@ -91,7 +91,7 @@ const renderUserSignupPage = (req, res) => {
   res.render("pages/forms/userSignUp");
 };
 const renderUserLoginPage = (req, res) => {
-  res.render("pages/forms/userLogin");
+  res.render("pages/forms/userLogin", { success: req.flash("success") });
 };
 
 const signUpUser = async (req, res) => {
@@ -123,8 +123,9 @@ const signUpUser = async (req, res) => {
         expiresIn: "72h",
       });
       res.cookie("UserToken", token, { httpOnly: true });
-      // res.redirect("/users/purchase");
-      res.send("success in signup user");
+      req.flash("success", "Successfully signed up");
+      res.redirect("/users/purchase");
+      // res.send("success in signup user");
     })
     .catch((err) => {
       console.log(err);
@@ -141,10 +142,12 @@ const logInUser = async (req, res) => {
     process.env.JWT_SECRET
   );
   res.cookie("userToken", userToken, { expiresIn: "72h" });
+  req.flash("success", "welcome");
   res.redirect("/users/purchase");
 };
 const logoutUser = (req, res) => {
   res.clearCookie("userToken");
+  req.flash("success", "Successfully logged out");
   res.redirect("/login/user");
 };
 

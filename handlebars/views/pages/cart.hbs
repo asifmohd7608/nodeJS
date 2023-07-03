@@ -1,0 +1,77 @@
+{{#if success}}
+  <div class="success_msg"><p>{{success}}</p></div>
+{{/if}}
+{{#if cart}}
+
+<h1 class="cart_heading">Cart</h1>
+<table class="cart_table">
+  <tr>
+    <th>Sl.No</th>
+    <th>Cover</th>
+    <th>Title</th>
+    <th>Quantity</th>
+    <th>Apply Coupon</th>
+    <th>Price</th>
+    <th>Delete</th>
+  </tr>
+  {{#each books}}
+    <tr>
+      <td>
+        <p>{{indexPlusOne @index}}</p>
+        </td>
+        <td>
+            <img class="cart_image" src="/{{this.File_Path}}" alt="Book Cover" />
+        </td>
+        <td>
+            <p>{{this.Book_Title}}</p>
+        </td>
+        <td>
+            <div class="cart_quantity">
+                <a href="/users/cart/add/{{this.id}}/add"><button>+</button></a>
+               {{#each ../cart}}
+                    {{ifequals this.id ../this.id this.quantity ''}}
+               {{/each}}
+                <a href="/users/cart/add/{{this.id}}/reduce"><button>-</button></a>
+                
+            </div>
+        </td>
+        <td><button class="coupon_apply_btn" data-id="{{this.category.id}}">Apply Coupon</button></td>
+        <td>
+            {{#each ../cart}}
+                    <p>{{totalAmount this.id ../this.id this.quantity ../this.Price}}</p>
+               {{/each}}
+        </td>
+        <td>
+            <a href="/users/cart/{{this.id}}/delete"><button class="cart_item_delete_btn">Delete</button></a>
+        </td>
+      </div>
+    </tr>
+  {{/each}}
+  {{#if cart}}
+<tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td><a href="/users/cart/delete"><button class="cart_clear_btn">Clear Cart</button></a></td>
+    <td><a href="/users/cart/checkout"><button class="cart_checkout_btn">Checkout</button></a></td>
+</tr>
+
+  <div class="coupon_popup">
+  <form action="/coupons/check">
+  <label for="coupon">select Coupon</label>
+  {{!-- <select name="Name" id="coupon">
+    {{#each}}
+    <option value="{{this.Name}}"></option>
+    {{/each}}
+  </select> --}}
+  </form>
+  </div>
+{{/if}}
+</table>
+{{else}}
+<div class="cart_empty_div">
+    <h1 class="cart_empty_header">Your cart is empty</h1>
+    <h1 class="cart_empty_link"><a href="/users/purchase">shop book</a></h1>
+</div>
+{{/if}}

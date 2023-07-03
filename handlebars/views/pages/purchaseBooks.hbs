@@ -1,11 +1,26 @@
+{{#if success}}
+  <div class="success_msg"><p>{{success}}</p></div>
+{{/if}}
 <h1>Purchase Books</h1>
+
+<form action="/users/purchase/sort" method="post">
+  <p>Sort by</p>
+  <label for="min">Min.</label>
+  <input type="number" name="min" id="min" value="{{formData.min}}" />
+  <label for="max">Max.</label>
+  <input type="number" name="max" value="{{formData.max}}" />
+  <button>Sort</button>
+</form>
 
 <div class="books_container">
   {{#each books}}
     <div class="book_card">
       <img class="book_card_image" src="/{{this.File_Path}}" alt="book cover" />
       <p>{{this.Book_Title}}</p>
-      <button>Add to cart</button>
+      <p>Rs {{this.Price}}</p>
+      <p>Available Copies : {{this.No_Of_Copies_Current}}</p>
+      <a href="/users/cart/add/{{this.id}}"><button>Add to cart</button></a>
+
     </div>
   {{/each}}
 </div>

@@ -9,7 +9,8 @@ const checkIsAdmin = async (req, res, next) => {
       res.locals.name = jwt.verify(
         customerToken,
         process.env.JWT_SECRET
-      ).userName;
+      ).userName; // other wise wont show user name on admin routes
+      checkIsLoggedinCustomer(req, res, next);
     }
     req.originalUrl === "/signup/admin"
       ? res.render("pages/adminSignUp")
@@ -26,32 +27,21 @@ const checkIsAdmin = async (req, res, next) => {
   // console.log(`secret jwt : ${process.env.JWT_SECRET}`);
 };
 const checkIsLoggedinCustomer = (req, res, next) => {
-  // const userToken = req.cookies?.userToken;
-  // if (userToken) {
-  //   const result = jwt.verify(userToken, process.env.JWT_SECRET);
-  //   result
-  //     ? req.originalUrl === "/signup/user" || req.originalUrl === "/login/user"
-  //       ? res.redirect("/users/purchase")
-  //       : next()
-  //     : res.render("pages/forms/userLogin");
-  // } else {
-  //   if (req.originalUrl === "/signup/user") {
-  //     res.render("pages/forms/userSignUp");
-  //   } else {
-  //     res.render("pages/forms/userLogin");
-  //   }
-  // }
-
   const token = req.cookies?.userToken;
   // console.log(`token : ${token}`);
   if (!token) {
     req.originalUrl === "/signup/user"
       ? res.render("pages/forms/userSignUp")
-      : res.render("pages/forms/userLogin");
+      : res.render("pages/forms/userLogin", { success: req.flash("success") });
   } else {
     const result = jwt.verify(token, process.env.JWT_SECRET);
     res.locals.name = result.userName;
+    req.Email = result.Email;
     req.originalUrl === "/signup/user" || req.originalUrl === "/login/user"
+      ? res.redirect("/users/purchase")
+      : req.originalUrl === "/books" ||
+        req.originalUrl === "/" ||
+        req.originalUrl === "/signup/admin"
       ? res.redirect("/users/purchase")
       : next();
   }

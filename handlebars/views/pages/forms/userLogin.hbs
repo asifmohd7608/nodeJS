@@ -1,3 +1,6 @@
+{{#if success}}
+  <div class="success_msg"><p>{{success}}</p></div>
+{{/if}}
 <form action="/login/user" method="post" class="admin_signup_form">
   <h2>Login</h2>
   {{#if message}}

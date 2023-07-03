@@ -1,0 +1,37 @@
+{{#if success}}
+  <div class="success_msg"><p>{{success}}</p></div>
+{{/if}}
+
+{{#if orders}}
+  <table class="cart_table">
+    <tr>
+      <th>Sl.No</th>
+      <th>Cover</th>
+      <th>Name</th>
+      <th>Unit Price</th>
+      <th>Quantity</th>
+      <th>Amount</th>
+      <th>Purchased On</th>
+    </tr>
+    {{#each orders}}
+      <tr>
+        <td>{{indexPlusOne @index}}</td>
+        <td><img
+            class="cart_image"
+            src="/{{this.book.File_Path}}"
+            alt="cover"
+          /></td>
+        <td>{{this.book.Book_Title}}</td>
+        <td>{{this.book.Price}}</td>
+        <td>{{this.Purchase_Count}}</td>
+        <td>{{this.Amount}}</td>
+        <td>{{convertTime this.createdAt}}</td>
+      </tr>
+    {{/each}}
+  </table>
+{{else}}
+  <div class="cart_empty_div">
+    <h1 class="cart_empty_header">Your don't have any orders</h1>
+    <h1 class="cart_empty_link"><a href="/users/purchase">shop Now</a></h1>
+  </div>
+{{/if}}

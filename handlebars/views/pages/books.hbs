@@ -1,5 +1,29 @@
 <h2 class="books_heading">Books</h2>
 
+<form action="/books/search" method="post" class="search_form">
+  <div><label for="Book_Title">Search By Name</label>
+    <input
+      type="text"
+      name="Book_Title"
+      value="{{formData.Book_Title}}"
+    /></div>
+  <div><label for="sort">Sort By Category</label>
+    <select name="Category_Type" id="">
+      {{#each categories}}
+        <option
+          name="Category_Type"
+          value="{{this.id}}"
+          {{ifequals this.id ../formData.Category_Type " selected" ""}}
+        >
+          {{this.category_name}}</option>
+      {{/each}}
+      <option value=""></option>
+    </select></div>
+  <button type="submit">Find</button>
+</form>
+<div class="button_container">
+  <a href="/books/addbook"><button class="create_book_btn">Create a Book</button></a>
+</div>
 <table class="books_table">
   <tr>
     <th>Name</th>
@@ -12,8 +36,9 @@
     <th>Total Copies</th>
     <th>Available copies</th>
     <th>Availability</th>
-    <th>Edit</th>
     <th>Cover Image</th>
+    <th>Edit</th>
+    <th>Delete</th>
   </tr>
   <tr>
     {{#each fetchedData}}
@@ -33,16 +58,26 @@
             out of stock
           {{/if}}
         </td>
-        <td>
-          <button class="book_edit_btn">
-            <a href="/books/editbook/{{this.dataValues.id}}">Edit</a>
-          </button>
-        </td>
         <td><img
-            src="{{this.File_Path}}"
+            src="/{{this.File_Path}}"
             alt="Book Cover"
             class="table_book_cover"
           /></td>
+        <td>
+          <a href="/books/editbook/{{this.dataValues.id}}">
+            <button class="book_edit_btn">
+              Edit
+            </button>
+          </a>
+        </td>
+        <td>
+          <a href="/books/delete/{{this.dataValues.id}}">
+            <button class="book_edit_btn">
+              Delete
+            </button>
+          </a>
+        </td>
+        
       </tr>
 
     {{/each}}
@@ -50,6 +85,3 @@
   </tr>
 </table>
 
-<div class="button_container">
-  <button><a href="/books/addbook">Create a Book</a></button>
-</div>

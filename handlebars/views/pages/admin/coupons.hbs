@@ -1,0 +1,59 @@
+{{#if coupons}}
+  <h1 class="coupon_header">Coupons</h1>
+  <div class="button_container_coupon">
+    <a href="/coupons/create"><button class="create_coupon_btn">Create a Coupon</button></a>
+  </div>
+  <table class="coupons_table">
+    <tr>
+      <th>Image</th>
+      <th>Name</th>
+      <th>Code</th>
+      <th>Coupon Offer</th>
+      <th>Coupon Type</th>
+      <th>Coupon Category</th>
+      <th>Coupon Status</th>
+      <th>Edit</th>
+      <th>Change Status</th>
+    </tr>
+    <tr>
+      {{#each coupons}}
+        <tr>
+          <td><img
+              src="{{this.Image_Path}}"
+              alt="Coupon image"
+              class="table_book_cover"
+            /></td>
+          <td>{{this.Name}}</td>
+          <td>{{this.Code}}</td>
+          <td>{{this.Coupon_Offer}}</td>
+          <td>{{this.Coupon_Type}}</td>
+          <td>{{checkCategories ../categories this.Coupon_Category}}</td>
+          <td>{{ifequals this.Coupon_Status 1 "Active" "Deactive"}}</td>
+
+          <td>
+            <a href="/coupons/edit/{{this.id}}">
+              <button class="book_edit_btn">
+                Edit
+              </button>
+            </a>
+          </td>
+          <td>
+            <a href="/coupons/changestatus/{{this.id}}">
+              <button class="book_edit_btn">
+                {{ifequals this.Coupon_Status 1 "Disable" "Enable"}}
+              </button>
+            </a>
+          </td>
+
+        </tr>
+
+      {{/each}}
+
+    </tr>
+  </table>
+{{else}}
+  <div class="cart_empty_div">
+    <h1 class="cart_empty_header">No Coupons Available</h1>
+    <h1 class="cart_empty_link"><a href="/coupons/create">Create a Coupon</a></h1>
+  </div>
+{{/if}}

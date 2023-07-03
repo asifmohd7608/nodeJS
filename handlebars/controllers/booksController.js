@@ -1,14 +1,37 @@
 const { db } = require("../config/database");
+const { Op } = require("sequelize");
 
 const fetchBooksData = async (req, res) => {
   try {
     const fetchedData = await db.books.findAll({ include: db.category });
+    const categories = await db.category.findAll();
+
     fetchedData
-      ? res.render("pages/books", { fetchedData })
+      ? res.render("pages/books", { fetchedData, categories })
       : res.send("error");
   } catch (err) {
     res.send("error");
   }
+};
+const searchBook = async (req, res) => {
+  const { Book_Title = "", Category_Type = "" } = req.body;
+  const categories = await db.category.findAll();
+  const formData = { Book_Title, Category_Type };
+  await db.books
+    .findAll({
+      where: {
+        Book_Title: { [Op.like]: `%${Book_Title}%` },
+        Category_Type: { [Op.like]: `%${Category_Type}%` },
+      },
+      include: db.category,
+    })
+    .then((fetchedData) => {
+      res.render("pages/books", { fetchedData, categories, formData });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.send("error");
+    });
 };
 const renderAddForm = async (req, res) => {
   try {
@@ -106,10 +129,24 @@ const editBook = async (req, res) => {
   }
 };
 
+const deleteBook = async (req, res) => {
+  const { id } = req.params;
+  console.log(id);
+  try {
+    const result = db.books.destroy({ where: { id } });
+    req.flash("success", "successfully deleted Book");
+    res.redirect("/");
+  } catch (error) {
+    res.send("error in deleteBook");
+  }
+};
+
 module.exports = {
   renderAddForm,
   renderEditForm,
   addBook,
   fetchBooksData,
   editBook,
+  searchBook,
+  deleteBook,
 };

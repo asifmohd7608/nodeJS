@@ -1,8 +1,5 @@
 <form action="/signup/user" method="post" class="admin_signup_form">
   <h2>Sign Up</h2>
-  {{#if message}}
-    <span class="error_msg">{{message}}</span>
-  {{/if}}
   <label for="email">Enter Mail Id</label>
   <input type="text" id="email" name="Email" value="{{formData.Email}}" />
   {{#if errors.Email}}

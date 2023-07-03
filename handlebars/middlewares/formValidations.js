@@ -212,6 +212,8 @@ const validateEditForm = [
         throw new Error(
           "Actual copies value cant be less than available copies value"
         );
+      } else if (parseInt(value) < 0) {
+        throw new Error("please enter a positive value");
       } else {
         return true;
       }
@@ -225,6 +227,8 @@ const validateEditForm = [
         throw new Error(
           "current copies value cant be greater than actual copies value"
         );
+      } else if (parseInt(value) < 0) {
+        throw new Error("please enter a positive value");
       } else {
         return true;
       }
@@ -456,13 +460,20 @@ const validateUserLoginForm = [
   body("Password")
     .notEmpty()
     .withMessage("Password field cant be empty")
+    .bail()
     .custom(async (value, { req }) => {
       const customer = await db.customer.findAll({
         where: { Email: req.body.Email },
       });
+      if (customer.length < 1) {
+        throw new Error("Invalid email Id or password");
+      }
+      console.log("before result");
       const result = await bcrypt.compare(value, customer[0].Password);
+      console.log("after result");
+
       if (!result) {
-        throw new Error("password is incorrect");
+        throw new Error("Invalid email Id or password");
       } else {
         req.customerId = customer[0].id;
         return true;
@@ -480,10 +491,350 @@ const validateUserLoginForm = [
     }
   },
 ];
+
+const validateCouponCreateForm = [
+  body("Name")
+    .notEmpty()
+    .withMessage("Coupon name can't be empty")
+    .bail()
+    .isString()
+    .withMessage("Coupon name should be of strings")
+    .bail()
+    .isLength({ min: 4, max: 15 })
+    .withMessage("Coupon name should be 4 to 15 characters long")
+    .custom(async (value, { req }) => {
+      const result = await db.coupons.findOne({ where: { Name: value } });
+      if (result) {
+        throw new Error("A coupon with the same name already exists");
+      } else {
+        return true;
+      }
+    }),
+  body("Code")
+    .notEmpty()
+    .withMessage("Code can't be empty")
+    .bail()
+    .isString()
+    .withMessage("Code should be of strings")
+    .bail()
+    .isLength({ min: 4, max: 15 })
+    .withMessage("Code should be 4 to 15 characters long")
+    .custom(async (value, { req }) => {
+      const result = await db.coupons.findOne({ where: { Code: value } });
+      if (result) {
+        throw new Error("A coupon with the same code already exists");
+      } else {
+        return true;
+      }
+    }),
+  body("Coupon_Offer")
+    .notEmpty()
+    .withMessage("coupon offer value can't be empty")
+    .bail()
+    .isNumeric()
+    .withMessage("coupon offer value should be a number")
+    .bail()
+    .isLength({ min: 1, max: 5 })
+    .withMessage("coupon offer value should be 1 to 5"),
+  body("Coupon_Type")
+    .notEmpty()
+    .withMessage("Coupon type value can't be empty")
+    .bail()
+    .custom((value, { req }) => {
+      if (value !== "Percentage" && value !== "Fixed") {
+        throw new Error("Coupon type should be either Percentage or Fixed");
+      } else {
+        return true;
+      }
+    }),
+  body("Coupon_Status").notEmpty().withMessage("Coupon Status can't be empty"),
+  body("file").custom((value, { req }) => {
+    if (!req.file) {
+      throw new Error("Please upload a coupon image");
+    } else {
+      return true;
+    }
+  }),
+  body("Validity_Start")
+    .notEmpty()
+    .withMessage("Validity start field can't be empty")
+    .bail()
+    .isDate()
+    .withMessage("Incorrect date format")
+    .bail()
+    .custom((value, { req }) => {
+      console.log(`start ${value} , type : ${typeof value}`);
+      const validityStartDateInMs = new Date(value).getTime();
+      //today
+      const today = new Date();
+      const currentTime = today.getTime();
+      today.setHours(0, 0, 0, 0);
+      const todayInMs = today.getTime();
+
+      //tommorrow
+      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      tomorrow.setHours(0, 0, 0, 0);
+      const tommorrowInMs = tomorrow.getTime();
+
+      console.log(`validity start date in ms  : ${validityStartDateInMs}`);
+      console.log(`current time in ms  : ${currentTime}`);
+      console.log(`tommorrow in ms  : ${tommorrowInMs}`);
+      if (validityStartDateInMs - todayInMs < 0) {
+        throw new Error("validity start date can't be a past date");
+      } else if (validityStartDateInMs - todayInMs < 24 * 60 * 60 * 1000) {
+        throw new Error(
+          "validity start date can't be the same date as coupon creation date"
+        );
+      } else {
+        return true;
+      }
+    }),
+  body("Validity_End")
+    .notEmpty()
+    .withMessage("Validity end field can't be empty")
+    .bail()
+    .isDate()
+    .withMessage("Incorrect date format")
+    .bail()
+    .custom((value, { req }) => {
+      const validityStartDate = req.body.Validity_Start;
+      const validityStartDateInMs = new Date(validityStartDate).getTime();
+      const validityEndDateInMs = new Date(value).getTime();
+      //today
+      const today = new Date();
+      const currentTime = today.getTime();
+      today.setHours(0, 0, 0, 0);
+      const todayInMs = today.getTime();
+
+      //tommorrow
+      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      tomorrow.setHours(0, 0, 0, 0);
+      if (validityEndDateInMs === validityStartDateInMs) {
+        throw new Error(
+          "validity end date and Start date can't be the same date"
+        );
+      } else if (validityEndDateInMs - currentTime < 0) {
+        throw new Error("validity end date can't be a past date");
+      } else {
+        return true;
+      }
+    }),
+  body("Coupon_Category")
+    .notEmpty()
+    .withMessage("Coupon category can't be empty"),
+  async (req, res, next) => {
+    const errors = validationResult(req).mapped();
+    if (Object.keys(errors).length > 0) {
+      console.log(errors);
+      const {
+        Name,
+        Code,
+        Coupon_Offer,
+        Coupon_Type,
+        Validity_Start,
+        Validity_End,
+        Coupon_Category,
+        Coupon_Status,
+      } = req.body;
+      // const fileName=req.file.filename
+      const formData = {
+        Name,
+        Code,
+        Coupon_Offer,
+        Coupon_Type,
+        Validity_Start,
+        Validity_End,
+        Coupon_Category,
+        Coupon_Status,
+      };
+      if (req.file) {
+        fs.unlink(`public/uploads/coupons/${req?.file?.filename}`, (err) => {
+          if (err) {
+            console.log(err);
+            console.log("error removing file");
+          } else {
+            console.log("removed file");
+          }
+        });
+      }
+      const categories = await db.category.findAll();
+      res.render("pages/forms/couponcreateform", {
+        errors,
+        formData,
+        categories,
+      });
+    } else {
+      next();
+    }
+  },
+];
+
+const validateCouponEditForm = [
+  body("Name")
+    .notEmpty()
+    .withMessage("Coupon name can't be empty")
+    .bail()
+    .isString()
+    .withMessage("Coupon name should be of strings")
+    .bail()
+    .isLength({ min: 4, max: 15 })
+    .withMessage("Coupon name should be 4 to 15 characters long")
+    .custom(async (value, { req }) => {
+      const result = await db.coupons.findOne({ where: { Name: value } });
+      if (result) {
+        if (result.id != req.params.id)
+          throw new Error("A coupon with the same name already exists");
+      } else {
+        return true;
+      }
+    }),
+  body("Code")
+    .notEmpty()
+    .withMessage("Code can't be empty")
+    .bail()
+    .isString()
+    .withMessage("Code should be of strings")
+    .bail()
+    .isLength({ min: 4, max: 15 })
+    .withMessage("Code should be 4 to 15 characters long")
+    .custom(async (value, { req }) => {
+      const result = await db.coupons.findOne({ where: { Code: value } });
+      if (result) {
+        if (result.id != req.params.id)
+          throw new Error("A coupon with the same code already exists");
+      } else {
+        return true;
+      }
+    }),
+  body("Coupon_Offer")
+    .notEmpty()
+    .withMessage("coupon offer value can't be empty")
+    .bail()
+    .isNumeric()
+    .withMessage("coupon offer value should be a number")
+    .bail()
+    .isLength({ min: 1, max: 5 })
+    .withMessage("coupon offer value should be 1 to 5"),
+  body("Coupon_Type")
+    .notEmpty()
+    .withMessage("Coupon type value can't be empty")
+    .bail()
+    .custom((value, { req }) => {
+      if (value !== "Percentage" && value !== "Fixed") {
+        throw new Error("Coupon type should be either Percentage or Fixed");
+      } else {
+        return true;
+      }
+    }),
+  body("Coupon_Status").notEmpty().withMessage("Coupon Status can't be empty"),
+  body("Validity_Start")
+    .notEmpty()
+    .withMessage("Validity start field can't be empty")
+    .bail()
+    .isDate()
+    .withMessage("Incorrect date format")
+    .bail()
+    .custom((value, { req }) => {
+      console.log(`start ${value} , type : ${typeof value}`);
+      const validityStartDateInMs = new Date(value).getTime();
+      //today
+      const today = new Date();
+      const currentTime = today.getTime();
+      today.setHours(0, 0, 0, 0);
+      const todayInMs = today.getTime();
+
+      //tommorrow
+      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      tomorrow.setHours(0, 0, 0, 0);
+      const tommorrowInMs = tomorrow.getTime();
+
+      console.log(`validity start date in ms  : ${validityStartDateInMs}`);
+      console.log(`current time in ms  : ${currentTime}`);
+      console.log(`tommorrow in ms  : ${tommorrowInMs}`);
+      if (validityStartDateInMs - todayInMs < 0) {
+        throw new Error("validity start date can't be a past date");
+      } else if (validityStartDateInMs - todayInMs < 24 * 60 * 60 * 1000) {
+        throw new Error(
+          "validity start date can't be the same date as coupon creation date"
+        );
+      } else {
+        return true;
+      }
+    }),
+  body("Validity_End")
+    .notEmpty()
+    .withMessage("Validity end field can't be empty")
+    .bail()
+    .isDate()
+    .withMessage("Incorrect date format")
+    .bail()
+    .custom((value, { req }) => {
+      const validityStartDate = req.body.Validity_Start;
+      const validityStartDateInMs = new Date(validityStartDate).getTime();
+      const validityEndDateInMs = new Date(value).getTime();
+      //today
+      const today = new Date();
+      const currentTime = today.getTime();
+      today.setHours(0, 0, 0, 0);
+      const todayInMs = today.getTime();
+
+      //tommorrow
+      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      tomorrow.setHours(0, 0, 0, 0);
+      if (validityEndDateInMs === validityStartDateInMs) {
+        throw new Error(
+          "validity end date and Start date can't be the same date"
+        );
+      } else if (validityEndDateInMs - currentTime < 0) {
+        throw new Error("validity end date can't be a past date");
+      } else {
+        return true;
+      }
+    }),
+
+  async (req, res, next) => {
+    const errors = validationResult(req).mapped();
+    if (Object.keys(errors).length > 0) {
+      console.log(errors);
+      const {
+        Name,
+        Code,
+        Coupon_Offer,
+        Coupon_Type,
+        Validity_Start,
+        Validity_End,
+        Coupon_Category,
+        Coupon_Status,
+      } = req.body;
+      const formData = {
+        Name,
+        Code,
+        Coupon_Offer,
+        Coupon_Type,
+        id: req.params.id,
+        Validity_Start,
+        Validity_End,
+        Coupon_Category,
+        Coupon_Status,
+      };
+      const categories = await db.category.findAll();
+
+      res.render("pages/admin/couponeditform", {
+        errors,
+        formData,
+        categories,
+      });
+    } else {
+      next();
+    }
+  },
+];
 module.exports = {
   validateAddForm,
   validateEditForm,
   validateAuthForm,
   validateUserSignupForm,
   validateUserLoginForm,
+  validateCouponCreateForm,
+  validateCouponEditForm,
 };

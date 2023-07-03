@@ -2,6 +2,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: "Open Sans", sans-serif;
 }
 
 .wrapper {
@@ -12,12 +13,29 @@
 .navbar {
   display: flex;
   justify-content: space-between;
-  margin: 2rem 0;
+  margin-bottom: 4rem;
+  padding: 1.5rem 4rem;
+  color: white;
+  background-color: rgb(0, 0, 0);
+  width: 100%;
+  position: sticky;
+  top: 0;
 }
-
-.navbar_right {
+.navbar a {
+  text-decoration: none;
+  color: white;
+}
+.navbar a:hover {
+  text-decoration: underline 2px solid rgb(255, 255, 255);
+  text-underline-offset: 0.5rem;
+}
+.navbar .navbar_right {
   display: flex;
   gap: 1rem;
+}
+.navbar .navbar_left {
+  display: flex;
+  gap: 2rem;
 }
 
 .books_heading {
@@ -25,26 +43,31 @@
   margin: 1rem auto;
 }
 
-.books_table {
+.books_table, .coupons_table {
   max-width: fit-content;
   margin: 3rem auto;
   border: 2px solid black;
+  border-radius: 0.5rem;
 }
-.books_table td,
-.books_table th {
+.books_table td, .coupons_table td,
+.books_table th,
+.coupons_table th {
   padding: 0.5rem;
-  border: 2px solid black;
 }
-.books_table .book_edit_btn {
+.books_table th, .coupons_table th {
+  border-bottom: 2px solid black;
+}
+.books_table .book_edit_btn, .coupons_table .book_edit_btn {
   max-width: fit-content;
   padding: 0.3rem 0.8rem;
 }
 
-.button_container {
-  max-width: fit-content;
+.button_container, .button_container_coupon {
+  display: flex;
+  justify-content: flex-end;
   margin: 1rem auto;
 }
-.button_container > button {
+.button_container button, .button_container_coupon button {
   padding: 0.5rem 2rem;
 }
 
@@ -165,6 +188,7 @@
   border-radius: 0.5rem;
   padding: 0.8rem;
   text-align: center;
+  transition: transform 150ms, box-shadow 150ms linear;
 }
 .books_container .book_card .book_card_image {
   width: 150px;
@@ -173,9 +197,215 @@
 }
 .books_container .book_card button {
   padding: 0.5rem 1rem;
+  color: white;
+  border-radius: 0.2rem;
+  border: none;
+  background-color: rgb(64, 122, 255);
+}
+.books_container .book_card button:hover {
+  background-color: rgb(38, 102, 252);
 }
 .books_container .book_card:hover {
-  box-shadow: 0 0 15 10 rgb(145, 145, 145);
+  box-shadow: 0 0 10px 5px rgb(228, 228, 228);
+}
+
+.cart_heading {
+  max-width: fit-content;
+  margin-inline: auto;
+}
+
+.cart_table {
+  max-width: fit-content;
+  margin: 3rem auto;
+  border: 2px solid rgb(116, 116, 116);
+  border-radius: 0.5rem;
+  border-spacing: 30px;
+  padding: 1rem 4rem;
+  text-align: center;
+}
+.cart_table td,
+.cart_table th {
+  padding: 0.5rem;
+}
+.cart_table .cart_image {
+  width: 70px;
+  height: 100px;
+  object-fit: cover;
+  object-position: center;
+}
+.cart_table .cart_quantity {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.cart_table .cart_quantity button {
+  padding: 0.2rem 0.5rem;
+}
+.cart_table .cart_item_delete_btn, .cart_table .cart_checkout_btn, .cart_table .cart_clear_btn {
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border: none;
+  background-color: rgb(202, 45, 45);
+  border-radius: 0.2rem;
+}
+.cart_table .cart_item_delete_btn:hover, .cart_table .cart_checkout_btn:hover, .cart_table .cart_clear_btn:hover {
+  background-color: rgb(153, 0, 0);
+  box-shadow: 0 0 0px 3px rgb(211, 211, 211);
+}
+.cart_table .cart_checkout_btn {
+  background-color: green;
+}
+.cart_table .cart_checkout_btn:hover {
+  background-color: rgb(25, 94, 25);
+}
+
+.cart_empty_div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 10rem auto 1rem auto;
+}
+.cart_empty_div .cart_empty_header {
+  color: rgb(146, 146, 146);
+}
+.cart_empty_div .cart_empty_link a {
+  text-decoration: underline 2px solid rgb(83, 82, 82);
+  text-underline-offset: 3px;
+}
+.cart_empty_div .cart_empty_link a:visited {
+  color: inherit;
+}
+
+.coupon_popup {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 400px;
+  height: 200px;
+  border: 2px solid black;
+  border-radius: 0.5rem;
+  background-color: white;
+}
+
+.toggle_popup {
+  display: block;
+}
+
+.success_msg {
+  position: absolute;
+  top: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 1rem;
+  color: rgb(31, 83, 43);
+  border: 2px solid rgb(0, 117, 0);
+  border-radius: 0.5rem;
+  max-width: fit-content;
+  margin-inline: auto;
+  background-color: rgb(165, 201, 165);
+}
+
+.about_details {
+  display: grid;
+  margin: 2rem auto;
+  gap: 2rem;
+}
+
+.search_form {
+  display: flex;
+  flex-direction: column;
+  max-width: fit-content;
+  margin: 2rem auto;
+  gap: 1rem;
+}
+.search_form > div {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+.search_form input {
+  padding: 0.5rem 1rem;
+  width: 12rem;
+  border: 2px solid rgb(172, 172, 172);
+  border-radius: 0.5rem;
+}
+.search_form select {
+  width: 12rem;
+  padding: 0.2rem 1rem;
+}
+.search_form button {
+  padding: 0.3rem 0.8rem;
+  max-width: fit-content;
+  margin-inline: auto;
+}
+
+.coupons_table {
+  min-width: 100%;
+  text-align: center;
+}
+
+.coupon_create_form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.coupon_create_form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.coupon_create_form > div > input {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid rgb(66, 66, 66);
+}
+.coupon_create_form > div > input:focus {
+  border: 2px solid rgb(49, 49, 250);
+  outline: 1px solid rgb(49, 49, 250);
+}
+.coupon_create_form > div select {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid rgb(66, 66, 66);
+}
+.coupon_create_form .form_button {
+  grid-column: span 2;
+  padding: 0.2rem 0.8rem;
+  max-width: fit-content;
+  margin-inline: auto;
+}
+.coupon_create_form .coupon_status_radio {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.coupon_create_form .coupon_status_radio > div {
+  display: flex;
+  gap: 2rem;
+}
+.coupon_create_form .date_field {
+  flex-direction: row;
+  justify-content: space-between;
+}
+.coupon_create_form .date_field .validity_field {
+  display: flex;
+  flex-direction: column;
+}
+.coupon_create_form .date_field .validity_field input {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid rgb(66, 66, 66);
+}
+
+.coupon_header {
+  max-width: fit-content;
+  margin: 1rem auto;
 }
 
 /*# sourceMappingURL=index.css.map */

@@ -1,0 +1,87 @@
+<h2 class="add_book_form_header">Add a Coupon</h2>
+<form action="/coupons/create" method="post" enctype="multipart/form-data" class="coupon_create_form">
+  <div>
+    <label for="name">Coupon Name</label>
+    <input type="text" id="name" name="Name" value="{{formData.Name}}">
+    {{#if errors.Name}}
+    <span class="error_msg">{{errors.Name.msg}}</span>
+    {{/if}}
+  </div>
+  <div>
+    <label for="Code">Coupon Code</label>
+    <input type="text" id="Code" name="Code" value="{{formData.Code}}">
+    {{#if errors.Code}}
+    <span class="error_msg">{{errors.Code.msg}}</span>
+    {{/if}}
+  </div>
+  <div>
+    <label for="Coupon_Offer">Coupon Offer</label>
+    <input type="number" id="Coupon_Offer" name="Coupon_Offer" value="{{formData.Coupon_Offer}}">
+    {{#if errors.Coupon_Offer}}
+    <span class="error_msg">{{errors.Coupon_Offer.msg}}</span>
+    {{/if}}
+  </div>
+  <div>
+    <label for="Coupon_Type">Coupon Type</label>
+     <select name="Coupon_Type" id="Coupon_Type">
+        <option value="Percentage" {{ifequals formData.Coupon_Type "Percentage" " selected"  '' }}>Percentage</option>
+        <option value="Fixed" {{ifequals formData.Coupon_Type "Fixed" " selected"  '' }}>Fixed</option>
+    </select>
+    {{#if errors.Coupon_Type}}
+    <span class="error_msg">{{errors.Coupon_Type.msg}}</span>
+    {{/if}}
+  </div>
+  <div>
+    <div class="coupon_status_radio">
+      <label >Coupon Status</label>
+      <div>
+      <div>
+        <input type="radio" value="1" name="Coupon_Status" id="1" {{ifequals formData.Coupon_Status '1' 'checked' ''}}>
+        <label for="1">Activate</label>
+      </div>
+      <div>
+        <input type="radio" value="0" name="Coupon_Status" id="0" {{ifequals formData.Coupon_Status '0' 'checked' ''}}>
+        <label for="0">Deactivate</label>
+      </div>
+      </div>
+    </div>
+    {{#if errors.Coupon_Status}}
+    <span class="error_msg">{{errors.Coupon_Status.msg}}</span>
+    {{/if}}
+  </div>
+  <div class="date_field">
+    <div class="validity_field">
+      <label for="date-start">Validity start</label>
+      <input type="date" name="Validity_Start" id="date-start" value="{{formData.Validity_Start}}">
+      {{#if errors.Validity_Start}}
+    <span class="error_msg">{{errors.Validity_Start.msg}}</span>
+    {{/if}}
+    </div>
+    <div class="validity_field">
+      <label for="date-end">Validity end</label>
+      <input type="date" name="Validity_End" id="date-end" value="{{formData.Validity_End}}">
+{{#if errors.Validity_End}}
+    <span class="error_msg">{{errors.Validity_End.msg}}</span>
+    {{/if}}
+    </div>
+  </div>
+  <div class="coupon_category">
+    <label for="category">Select category</label>
+    <select name="Coupon_Category" id="category">
+      {{#each categories}}
+      <option value="{{this.id}}" {{ifequals this.id ../formData.Coupon_Category "selected" ""}}>{{this.category_name}}</option>
+      {{/each}}
+      <option value="all" {{ifequals "all" ../formData.Coupon_Category "selected" ""}}>all</option>
+    </select>
+  </div>
+  <div class="coupon_image_upload_container">
+    <label for="file">Coupon Image</label>
+    <input type="file" name="file">
+    {{#if errors.file}}
+    <span class="error_msg">{{errors.file.msg}}</span>
+    {{/if}}
+  </div>
+    </div>
+    <button type="submit" class="form_button">CREATE</button>
+  </div>
+</form>
