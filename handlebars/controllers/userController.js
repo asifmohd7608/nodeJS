@@ -53,15 +53,15 @@ const addToCart = async (req, res) => {
       }
     });
   }
-  // console.log(cart);
-  // console.log(req.flash);
   req.flash("success", "added to cart");
   res.redirect("/users/purchase");
 };
 
 const changeQuantity = async (req, res) => {
-  const { bookId, action } = req.params;
+  const { couponId, bookId, action } = req.params;
   let cart = req.session?.cart;
+  const coupon = await db.coupons.findByPk(couponId);
+  const error = {};
   if (cart?.length < 1) {
     res.send("cant change quantity since cart doesnt exist");
   } else {
@@ -71,39 +71,45 @@ const changeQuantity = async (req, res) => {
       if (bookId === book.id && action === "add") {
         if (reqBook.No_Of_Copies_Current > book.quantity) {
           book.quantity += 1;
-          book.payableAmount = book.payableAmount + originalPrice;
           book.price = book.price + originalPrice;
+          if (coupon.Coupon_Type === "Fixed") {
+            book.payableAmount = book.payableAmount + originalPrice;
+          } else {
+            book.payableAmount =
+              book.price - book.price * (coupon.Coupon_Offer / 100);
+          }
         } else
-          req.flash(
-            "error",
-            `sorry, only ${reqBook.No_Of_Copies_Current}  quantity available`
-          );
+          error.errorMsg = `sorry, only ${reqBook.No_Of_Copies_Current}  quantity available`;
       } else if (bookId === book.id && action === "reduce") {
         if (book.quantity === 1) {
           book.quantity = 1;
           return;
         } else {
           book.quantity -= 1;
-          book.payableAmount = book.payableAmount - originalPrice;
           book.price = book.price - originalPrice;
+          if (coupon.Coupon_Type === "Fixed") {
+            book.payableAmount = book.payableAmount - originalPrice;
+          } else {
+            book.payableAmount =
+              book.price - book.price * (coupon.Coupon_Offer / 100);
+          }
         }
       }
     });
-    // console.log(cart);
+
     req.session.cart = cart;
-    res.send(cart);
-    // res.redirect("/users/cart/show");
+    res.json({ cart, error });
   }
 };
 
 const renderCart = async (req, res) => {
   let cart = req.session?.cart;
-  // console.log(`cart : ${cart}`);
+
   if (cart?.length > 0) {
     const bookIds = cart.map((book) => {
       return book.id;
     });
-    // console.log(`book ids : ${bookIds}`);
+
     await db.books
       .findAll({ where: { id: bookIds }, include: db.category })
       .then((books) => {
@@ -113,7 +119,6 @@ const renderCart = async (req, res) => {
           success: req.flash("success"),
           error: req.flash("error"),
         });
-        // res.send(books);
       })
       .catch((err) => {
         res.send("error in rendercart");
@@ -147,30 +152,26 @@ const deleteCart = (req, res) => {
 };
 
 const renderOrderPage = async (req, res) => {
-  const reqCustomer = await db.customer.findAll({
-    where: { Email: req.Email },
-  });
-  await db.purchase
-    .findAll({
+  try {
+    const reqCustomer = await db.customer.findAll({
+      where: { Email: req.Email },
+    });
+    const orders = await db.purchase.findAll({
       where: { Customer_Id: reqCustomer[0].id },
       include: {
         model: db.books,
         required: true,
         attributes: ["File_Path", "Book_Title", "Price"],
       },
-    })
-    .then((data) => {
-      // res.send(data);
-      res.render("pages/orders", {
-        orders: data,
-        success: req.flash("success"),
-      });
-    })
-    .catch((err) => {
-      res.send("error in renderOrderPage");
+      order: [["createdAt", "ASC"]],
     });
-
-  // res.render("pages/orders");
+    res.render("pages/orders", {
+      orders,
+      success: req.flash("success"),
+    });
+  } catch (error) {
+    res.send("error fetching orders");
+  }
 };
 const checkoutCart = async (req, res) => {
   const cart = req.session?.cart;
@@ -180,8 +181,10 @@ const checkoutCart = async (req, res) => {
       return accumulator;
     }, {})
   );
-  const promises = [];
+  let promises = [];
   if (uniqueCart) {
+    let count = uniqueCart.length;
+
     uniqueCart.forEach(async (book) => {
       const reqBook = await db.books.findByPk(book.id);
       const reqCustomer = await db.customer.findAll({
@@ -203,13 +206,16 @@ const checkoutCart = async (req, res) => {
         },
         { where: { id: book.id } }
       );
-      promises.push(promise, removeQuantityFromDb);
+      promises.push(promise);
+      count -= 1;
     });
     Promise.all([...promises])
       .then((data) => {
         req.session.cart = [];
         req.flash("success", "Successfully placed the order");
-        res.redirect("/users/orders");
+        setTimeout(() => {
+          res.redirect("/users/orders");
+        }, 100);
       })
       .catch((err) => {
         res.send("error in checkoutcart");
@@ -227,11 +233,16 @@ const fetchCoupons = async (req, res) => {
         Coupon_Category: {
           [Op.or]: [id, "all"],
         },
+        Coupon_Status: "1",
       },
     });
+    const now = Date.now();
+    const activeCoupons = coupons.filter(
+      (coupon) => Date.parse(coupon.Validity_End) > now
+    );
     const categories = await db.category.findAll();
     if (coupons && categories) {
-      res.json({ coupons, categories });
+      res.json({ coupons: activeCoupons, categories });
     } else {
       res.send("no coupons  for cart");
     }
@@ -243,8 +254,9 @@ const fetchCoupons = async (req, res) => {
 
 const applyCoupon = async (req, res) => {
   const cart = req?.session?.cart;
-  const { bookId } = req.params;
-  const { Coupon: id } = req.body;
+  const { couponId: id } = req.params;
+  const { bookId } = req.body;
+
   try {
     const reqBook = await db.books.findByPk(bookId);
     const reqCoupon = await db.coupons.findByPk(id);
@@ -262,30 +274,74 @@ const applyCoupon = async (req, res) => {
               } else if (reqCoupon.Coupon_Type === "Percentage") {
                 book.payableAmount =
                   book.payableAmount -
-                  reqBook.Price * (reqCoupon.Coupon_Offer / 100);
+                  book.payableAmount * (reqCoupon.Coupon_Offer / 100);
               }
               book.appliedCoupon = {
                 id: reqCoupon.id,
                 Name: reqCoupon.Name,
                 Code: reqCoupon.Code,
               };
+              req.session.cart = cart;
+              // res.redirect("/users/cart/show");
+              res.json({
+                cart,
+                success: { successMsg: "successfully added Coupon" },
+              });
             } else {
-              console.log(`else  :`);
-              req.flash("error", "you already have a coupon applied");
+              res.json({
+                cart,
+                error: { errorMsg: "you already have a coupon applied" },
+              });
+              // req.flash("error", "you already have a coupon applied");
             }
           }
         });
       } else {
-        req.flash("error", "you can only apply one coupon at a time");
+        // req.flash("error", "you can only apply one coupon at a time");
+        res.json({
+          cart,
+          error: { errorMsg: "you can only apply one coupon at a time" },
+        });
       }
-      req.session.cart = cart;
-      res.redirect("/users/cart/show");
     } else {
-      res.send("either no cart or no coupon");
+      res.json({ error: { errorMsg: "either no cart or no coupon" } }); //tru
     }
   } catch (error) {
     console.log(error);
-    res.send("error in applying coupon");
+    res.json({ error: { errorMsg: "Oops, could'nt in applying coupon" } });
+  }
+};
+const removeCoupon = async (req, res) => {
+  const { bookId } = req.params;
+  const cart = req.session?.cart;
+  if (cart?.length > 0) {
+    const uniqueCart = Object.values(
+      cart.reduce((accumulator, obj) => {
+        accumulator[obj.id] = obj;
+        return accumulator;
+      }, {})
+    );
+    uniqueCart.forEach((book) => {
+      if (book.id == bookId) {
+        if (book.appliedCoupon?.id) {
+          book.appliedCoupon = "";
+          book.payableAmount = book.unitPrice * book.quantity;
+          req.session.cart = uniqueCart;
+          res.json({
+            cart: uniqueCart,
+            success: { successMsg: "removed coupon" },
+          });
+        } else {
+          req.session.cart = uniqueCart;
+          res.json({
+            cart: uniqueCart,
+            error: { errorMsg: "no coupon to remove" },
+          });
+        }
+      }
+    });
+  } else {
+    res.json({ error: { errorMsg: "no items in cart" } });
   }
 };
 
@@ -301,4 +357,5 @@ module.exports = {
   checkoutCart,
   fetchCoupons,
   applyCoupon,
+  removeCoupon,
 };

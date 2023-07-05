@@ -65,6 +65,8 @@ const updateCoupon = async (req, res) => {
     Coupon_Type,
     Coupon_Status,
     Coupon_Category,
+    Validity_Start,
+    Validity_End,
   } = req.body;
   const { id } = req.params;
   const updatedData = {
@@ -74,6 +76,8 @@ const updateCoupon = async (req, res) => {
     Coupon_Type,
     Coupon_Status,
     Coupon_Category,
+    Validity_Start,
+    Validity_End,
   };
   if (req.file) {
     updatedData.Image_Path = `/uploads/coupons/${req?.file?.filename}`;

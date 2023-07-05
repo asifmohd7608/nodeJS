@@ -322,7 +322,7 @@
 }
 .coupon_popup {
   display: none;
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
   margin: auto;
@@ -336,7 +336,7 @@
   display: block;
 }
 .success_msg {
-  position: absolute;
+  position: fixed;
   top: 5rem;
   left: 50%;
   transform: translateX(-50%);
@@ -354,6 +354,7 @@
   background-color: rgb(231, 187, 187);
   border: 2px solid rgb(122, 0, 0);
 }
+
 .about_details {
   display: grid;
   margin: 2rem auto;
@@ -457,4 +458,20 @@
 .coupon_header {
   max-width: fit-content;
   margin: 1rem auto;
+}
+.error_msg_from_fetch {
+  @extend .err_msg;
+  display: none;
+}
+.show_error_msg_from_fetch {
+  display: block;
+  position: fixed;
+}
+.success_msg_from_fetch {
+  @extend .success_msg;
+  display: none;
+}
+.show_success_msg_from_fetch {
+  display: block;
+  position: fixed;
 }

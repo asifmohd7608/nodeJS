@@ -317,7 +317,7 @@
 
 .coupon_popup {
   display: none;
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
   margin: auto;
@@ -332,8 +332,8 @@
   display: block;
 }
 
-.success_msg, .err_msg {
-  position: absolute;
+.success_msg, .success_msg_from_fetch, .err_msg, .error_msg_from_fetch {
+  position: fixed;
   top: 5rem;
   left: 50%;
   transform: translateX(-50%);
@@ -346,7 +346,7 @@
   background-color: rgb(165, 201, 165);
 }
 
-.err_msg {
+.err_msg, .error_msg_from_fetch {
   color: rgb(92, 0, 0);
   background-color: rgb(231, 187, 187);
   border: 2px solid rgb(122, 0, 0);
@@ -449,6 +449,24 @@
 .coupon_header {
   max-width: fit-content;
   margin: 1rem auto;
+}
+
+.error_msg_from_fetch {
+  display: none;
+}
+
+.show_error_msg_from_fetch {
+  display: block;
+  position: fixed;
+}
+
+.success_msg_from_fetch {
+  display: none;
+}
+
+.show_success_msg_from_fetch {
+  display: block;
+  position: fixed;
 }
 
 /*# sourceMappingURL=index.css.map */

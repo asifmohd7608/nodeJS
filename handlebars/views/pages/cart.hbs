@@ -4,6 +4,8 @@
 {{#if error}}
   <div class="err_msg"><p>{{error}}</p></div>
 {{/if}}
+<div class="error_msg_from_fetch"></div>
+<div class="success_msg_from_fetch"></div>
 {{#if cart}}
 
 <h1 class="cart_heading">Cart</h1>
@@ -38,7 +40,7 @@
                     +
                   </button>
                   {{!-- </a> --}}
-                    <p class="quantity" data-id="{{this.id}}"></p>
+                    <p class="quantity" data-id="{{this.id}}">{{findQuantity ../cart this.id}}</p>
                     {{!-- {{findQuantity ../cart this.id}} --}}
                 {{!-- <a href="/users/cart/add/{{this.id}}/reduce"> --}}
                   <button class="changeQuantityBtn" onclick="changeQuantity('reduce')" data-id="{{this.id}}">
@@ -50,21 +52,21 @@
         </td>
         <td><button class="coupon_apply_btn" onclick="fetchCoupons()" data-categoryId="{{this.category.id}}" data-id="{{this.id}}">Apply Coupon</button></td>
         <td>       
-            <p>{{findUnitPrice ../cart this.id }}</p>             
+            <p class="unit_price" data-id="{{this.id}}">{{findUnitPrice ../cart this.id }}</p>             
         </td>
         <td>       
-            <p>{{findPrice ../cart this.id }}</p>             
+            <p class="price" data-id="{{this.id}}">{{findPrice ../cart this.id }}</p>             
         </td>
         <td>
-            <p>{{findPayablePrice ../cart this.id}}</p>
+            <p class="payable_amount" data-id="{{this.id}}">{{findPayablePrice ../cart this.id}}</p>
         </td>
         <td>
-            <p>{{findDiscount ../cart this.id}}</p>
+            <p class="discount" data-id="{{this.id}}">{{findDiscount ../cart this.id}}</p>
         </td>
          <div class="coupon_popup" data-key="{{this.id}}">
           <h4 class="coupon_apply_form_header">Apply Coupon for {{this.Book_Title}}</h4>
           <div class="coupon_apply_form_container">
-            <form action="/users/cart/applycoupon/{{this.id}}" method="post" class="coupon_apply_form">
+            <form  class="coupon_apply_form" data-id="{{this.id}}">
             
               <label for="coupon">select Coupon</label>
               <div class="coupon_apply_options_wrapper">
@@ -74,6 +76,7 @@
               <button id="coupon_apply_btn" type="submit">Apply</button>
               </div>
             </form>
+              <button onclick="removeCoupon()" id="coupon_remove_btn" data-id="{{this.id}}" >Remove</button>
             </div>
         </div>
         <td>
