@@ -1,6 +1,9 @@
 {{#if success}}
   <div class="success_msg"><p>{{success}}</p></div>
 {{/if}}
+{{#if error}}
+  <div class="err_msg"><p>{{error}}</p></div>
+{{/if}}
 {{#if cart}}
 
 <h1 class="cart_heading">Cart</h1>
@@ -11,7 +14,10 @@
     <th>Title</th>
     <th>Quantity</th>
     <th>Apply Coupon</th>
+    <th>Unit Price</th>
     <th>Price</th>
+    <th>Payable Amount</th>
+    <th>Discount</th>
     <th>Delete</th>
   </tr>
   {{#each books}}
@@ -27,20 +33,49 @@
         </td>
         <td>
             <div class="cart_quantity">
-                <a href="/users/cart/add/{{this.id}}/add"><button>+</button></a>
-               {{#each ../cart}}
-                    {{ifequals this.id ../this.id this.quantity ''}}
-               {{/each}}
-                <a href="/users/cart/add/{{this.id}}/reduce"><button>-</button></a>
+                {{!-- <a href="/users/cart/add/{{this.id}}/add"> --}}
+                  <button class="changeQuantityBtn" onclick="changeQuantity('add')" data-id="{{this.id}}">
+                    +
+                  </button>
+                  {{!-- </a> --}}
+                    <p class="quantity" data-id="{{this.id}}"></p>
+                    {{!-- {{findQuantity ../cart this.id}} --}}
+                {{!-- <a href="/users/cart/add/{{this.id}}/reduce"> --}}
+                  <button class="changeQuantityBtn" onclick="changeQuantity('reduce')" data-id="{{this.id}}">
+                  -
+                  </button>
+                  {{!-- </a> --}}
                 
             </div>
         </td>
-        <td><button class="coupon_apply_btn" data-id="{{this.category.id}}">Apply Coupon</button></td>
-        <td>
-            {{#each ../cart}}
-                    <p>{{totalAmount this.id ../this.id this.quantity ../this.Price}}</p>
-               {{/each}}
+        <td><button class="coupon_apply_btn" onclick="fetchCoupons()" data-categoryId="{{this.category.id}}" data-id="{{this.id}}">Apply Coupon</button></td>
+        <td>       
+            <p>{{findUnitPrice ../cart this.id }}</p>             
         </td>
+        <td>       
+            <p>{{findPrice ../cart this.id }}</p>             
+        </td>
+        <td>
+            <p>{{findPayablePrice ../cart this.id}}</p>
+        </td>
+        <td>
+            <p>{{findDiscount ../cart this.id}}</p>
+        </td>
+         <div class="coupon_popup" data-key="{{this.id}}">
+          <h4 class="coupon_apply_form_header">Apply Coupon for {{this.Book_Title}}</h4>
+          <div class="coupon_apply_form_container">
+            <form action="/users/cart/applycoupon/{{this.id}}" method="post" class="coupon_apply_form">
+            
+              <label for="coupon">select Coupon</label>
+              <div class="coupon_apply_options_wrapper">
+              <select name="Coupon" class="coupon_select" data-key="{{this.id}}">
+   
+              </select>
+              <button id="coupon_apply_btn" type="submit">Apply</button>
+              </div>
+            </form>
+            </div>
+        </div>
         <td>
             <a href="/users/cart/{{this.id}}/delete"><button class="cart_item_delete_btn">Delete</button></a>
         </td>
@@ -57,16 +92,7 @@
     <td><a href="/users/cart/checkout"><button class="cart_checkout_btn">Checkout</button></a></td>
 </tr>
 
-  <div class="coupon_popup">
-  <form action="/coupons/check">
-  <label for="coupon">select Coupon</label>
-  {{!-- <select name="Name" id="coupon">
-    {{#each}}
-    <option value="{{this.Name}}"></option>
-    {{/each}}
-  </select> --}}
-  </form>
-  </div>
+ 
 {{/if}}
 </table>
 {{else}}

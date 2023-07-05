@@ -83,6 +83,86 @@ hbs.registerHelper("convertTime", (time) => {
   const date = new Date(time);
   return date.toDateString();
 });
+hbs.registerHelper("findPrice", (cart, bookId) => {
+  const uniqueCart = Object.values(
+    cart.reduce((accumulator, obj) => {
+      accumulator[obj.id] = obj;
+      return accumulator;
+    }, {})
+  );
+
+  const price = uniqueCart.map((book) => {
+    if (book.id == bookId) {
+      return book.price;
+    }
+  });
+  const filteredPrice = price.filter((value) => value !== undefined);
+  return filteredPrice[0];
+});
+hbs.registerHelper("findUnitPrice", (cart, bookId) => {
+  const uniqueCart = Object.values(
+    cart.reduce((accumulator, obj) => {
+      accumulator[obj.id] = obj;
+      return accumulator;
+    }, {})
+  );
+
+  const unitPrice = uniqueCart.map((book) => {
+    if (book.id == bookId) {
+      return book.unitPrice;
+    }
+  });
+  const filteredUnitPrice = unitPrice.filter((value) => value !== undefined);
+  return filteredUnitPrice[0];
+});
+hbs.registerHelper("findPayablePrice", (cart, bookId) => {
+  const uniqueCart = Object.values(
+    cart.reduce((accumulator, obj) => {
+      accumulator[obj.id] = obj;
+      return accumulator;
+    }, {})
+  );
+
+  const price = uniqueCart.map((book) => {
+    if (book.id == bookId) {
+      return book.payableAmount;
+    }
+  });
+  const filteredPrice = price.filter((value) => value !== undefined);
+  return filteredPrice[0];
+});
+hbs.registerHelper("findQuantity", (cart, bookId) => {
+  const uniqueCart = Object.values(
+    cart.reduce((accumulator, obj) => {
+      accumulator[obj.id] = obj;
+      return accumulator;
+    }, {})
+  );
+
+  const quantity = uniqueCart.map((book) => {
+    if (book.id == bookId) {
+      return book.quantity;
+    }
+  });
+  const filteredQuantity = quantity.filter((value) => value !== undefined);
+  return filteredQuantity[0];
+});
+hbs.registerHelper("findDiscount", (cart, bookId) => {
+  const uniqueCart = Object.values(
+    cart.reduce((accumulator, obj) => {
+      accumulator[obj.id] = obj;
+      return accumulator;
+    }, {})
+  );
+
+  const discount = uniqueCart.map((book) => {
+    if (book.id == bookId) {
+      return book.price - book.payableAmount;
+    }
+  });
+  const filteredDiscount = discount.filter((value) => value !== undefined);
+  return filteredDiscount[0];
+});
 
 //syncing db--------------------
 try {

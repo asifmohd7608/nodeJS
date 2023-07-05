@@ -28,5 +28,13 @@ const purchase = sequelize.define("purchase", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  Subtotal: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  Discount_Amount: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
 });
 module.exports = purchase;

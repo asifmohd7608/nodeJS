@@ -116,22 +116,7 @@ const changeCouponStatus = async (req, res) => {
     res.send("error in deleteCoupon");
   }
 };
-const fetchCoupons = async (req, res) => {
-  const { id: categoryId } = req.params;
-  console.log(`id : ${categoryId}`);
-  try {
-    const coupons = await db.coupons.findAll({
-      where: { Coupon_Category: categoryId },
-    });
-    console.log(coupons);
-    if (coupons) {
-      res.status(200).json(coupons);
-    }
-  } catch (error) {
-    console.log(error);
-    res.send("error in fetchig coupons for cart");
-  }
-};
+
 module.exports = {
   renderCouponsTable,
   renderCouponEditForm,
@@ -139,5 +124,4 @@ module.exports = {
   createCoupon,
   updateCoupon,
   changeCouponStatus,
-  fetchCoupons,
 };

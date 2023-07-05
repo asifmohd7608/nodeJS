@@ -19,6 +19,7 @@
   background-color: rgb(0, 0, 0);
   width: 100%;
   position: sticky;
+  z-index: 10;
   top: 0;
 }
 .navbar a {
@@ -220,7 +221,7 @@
   border: 2px solid rgb(116, 116, 116);
   border-radius: 0.5rem;
   border-spacing: 30px;
-  padding: 1rem 4rem;
+  padding: 1rem 2rem;
   text-align: center;
 }
 .cart_table td,
@@ -257,6 +258,42 @@
 }
 .cart_table .cart_checkout_btn:hover {
   background-color: rgb(25, 94, 25);
+}
+.cart_table .coupon_apply_btn {
+  padding: 0.3rem 0.8rem;
+  background-color: rgb(16, 95, 168);
+  color: white;
+  border-radius: 0.2rem;
+  border: none;
+}
+.cart_table .coupon_apply_btn:hover {
+  background-color: rgb(13, 69, 122);
+  box-shadow: 0 0 0px 3px rgb(211, 211, 211);
+}
+
+.coupon_apply_form_header {
+  max-width: fit-content;
+  margin: 0.5rem auto;
+}
+
+.coupon_apply_form_container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.coupon_apply_form_container :nth-child(n) {
+  max-width: fit-content;
+  margin-inline: auto;
+}
+.coupon_apply_form_container .coupon_apply_options_wrapper {
+  display: flex;
+  gap: 1rem;
+}
+.coupon_apply_form_container select {
+  padding: 0.3rem 0.8rem;
+}
+.coupon_apply_form_container button {
+  padding: 0.3rem 0.8rem;
 }
 
 .cart_empty_div {
@@ -295,7 +332,7 @@
   display: block;
 }
 
-.success_msg {
+.success_msg, .err_msg {
   position: absolute;
   top: 5rem;
   left: 50%;
@@ -307,6 +344,12 @@
   max-width: fit-content;
   margin-inline: auto;
   background-color: rgb(165, 201, 165);
+}
+
+.err_msg {
+  color: rgb(92, 0, 0);
+  background-color: rgb(231, 187, 187);
+  border: 2px solid rgb(122, 0, 0);
 }
 
 .about_details {

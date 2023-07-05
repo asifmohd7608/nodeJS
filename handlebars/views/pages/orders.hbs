@@ -10,7 +10,9 @@
       <th>Name</th>
       <th>Unit Price</th>
       <th>Quantity</th>
+      <th>Sub Total</th>
       <th>Amount</th>
+      <th>Discount</th>
       <th>Purchased On</th>
     </tr>
     {{#each orders}}
@@ -24,7 +26,9 @@
         <td>{{this.book.Book_Title}}</td>
         <td>{{this.book.Price}}</td>
         <td>{{this.Purchase_Count}}</td>
+        <td>{{this.Subtotal}}</td>
         <td>{{this.Amount}}</td>
+        <td>{{this.Discount_Amount}}</td>
         <td>{{convertTime this.createdAt}}</td>
       </tr>
     {{/each}}

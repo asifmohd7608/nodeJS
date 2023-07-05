@@ -7,7 +7,6 @@ const {
   createCoupon,
   updateCoupon,
   changeCouponStatus,
-  fetchCoupons,
 } = require("../controllers/couponsController");
 const {
   validateCouponCreateForm,
@@ -30,6 +29,5 @@ router.post(
   updateCoupon
 );
 router.get("/changestatus/:id", changeCouponStatus);
-router.get("/fetchcoupons/:id", fetchCoupons);
 
 module.exports = router;

@@ -21,19 +21,34 @@ const sortByBooksPrice = async (req, res) => {
     res.send("error in sorting");
   }
 };
-const addToCart = (req, res) => {
+const addToCart = async (req, res) => {
   const { bookId } = req.params;
+  const reqbook = await db.books.findByPk(bookId);
   let cart = req.session?.cart;
   if (!cart || cart.length < 1) {
     req.session.cart = [];
-    const book = { id: bookId, quantity: 1 };
+    const book = {
+      id: bookId,
+      quantity: 1,
+      unitPrice: reqbook.Price,
+      price: reqbook.Price,
+      appliedCoupon: "",
+      payableAmount: reqbook.Price,
+    };
     req.session.cart.push(book);
   } else {
     cart.filter((book) => {
       if (book.id == bookId) {
-        book.quantity += 1;
+        return;
       } else {
-        const book = { id: bookId, quantity: 1 };
+        const book = {
+          id: bookId,
+          quantity: 1,
+          unitPrice: reqbook.Price,
+          price: reqbook.Price,
+          appliedCoupon: "",
+          payableAmount: reqbook.Price,
+        };
         req.session.cart.push(book);
       }
     });
@@ -52,22 +67,32 @@ const changeQuantity = async (req, res) => {
   } else {
     const reqBook = await db.books.findByPk(bookId);
     cart.forEach(async (book) => {
+      const originalPrice = reqBook.Price;
       if (bookId === book.id && action === "add") {
         if (reqBook.No_Of_Copies_Current > book.quantity) {
           book.quantity += 1;
-        }
+          book.payableAmount = book.payableAmount + originalPrice;
+          book.price = book.price + originalPrice;
+        } else
+          req.flash(
+            "error",
+            `sorry, only ${reqBook.No_Of_Copies_Current}  quantity available`
+          );
       } else if (bookId === book.id && action === "reduce") {
         if (book.quantity === 1) {
           book.quantity = 1;
           return;
         } else {
           book.quantity -= 1;
+          book.payableAmount = book.payableAmount - originalPrice;
+          book.price = book.price - originalPrice;
         }
       }
     });
     // console.log(cart);
     req.session.cart = cart;
-    res.redirect("/users/cart/show");
+    res.send(cart);
+    // res.redirect("/users/cart/show");
   }
 };
 
@@ -86,6 +111,7 @@ const renderCart = async (req, res) => {
           books,
           cart,
           success: req.flash("success"),
+          error: req.flash("error"),
         });
         // res.send(books);
       })
@@ -93,7 +119,11 @@ const renderCart = async (req, res) => {
         res.send("error in rendercart");
       });
   } else {
-    res.render("pages/cart", { cart: [], success: req.flash("success") });
+    res.render("pages/cart", {
+      cart: [],
+      success: req.flash("success"),
+      error: req.flash("error"),
+    });
   }
 };
 const deleteFromCart = (req, res) => {
@@ -144,18 +174,27 @@ const renderOrderPage = async (req, res) => {
 };
 const checkoutCart = async (req, res) => {
   const cart = req.session?.cart;
+  const uniqueCart = Object.values(
+    cart.reduce((accumulator, obj) => {
+      accumulator[obj.id] = obj;
+      return accumulator;
+    }, {})
+  );
   const promises = [];
-  if (cart) {
-    cart.forEach(async (book) => {
+  if (uniqueCart) {
+    uniqueCart.forEach(async (book) => {
       const reqBook = await db.books.findByPk(book.id);
       const reqCustomer = await db.customer.findAll({
         where: { Email: req.Email },
       });
       const promise = await db.purchase.create({
         Purchase_Count: book.quantity,
-        Amount: book.quantity * reqBook.Price,
+        Amount: book.payableAmount,
         Customer_Id: reqCustomer[0].id,
         Book_Id: reqBook.id,
+        Coupon_Id: book.appliedCoupon.id,
+        Subtotal: book.quantity * reqBook.Price,
+        Discount_Amount: book.price - book.payableAmount,
       });
       const removeQuantityFromDb = await db.books.update(
         {
@@ -180,6 +219,76 @@ const checkoutCart = async (req, res) => {
   }
 };
 
+const fetchCoupons = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const coupons = await db.coupons.findAll({
+      where: {
+        Coupon_Category: {
+          [Op.or]: [id, "all"],
+        },
+      },
+    });
+    const categories = await db.category.findAll();
+    if (coupons && categories) {
+      res.json({ coupons, categories });
+    } else {
+      res.send("no coupons  for cart");
+    }
+  } catch (error) {
+    console.log(error);
+    res.send("error in fetchig coupons for cart");
+  }
+};
+
+const applyCoupon = async (req, res) => {
+  const cart = req?.session?.cart;
+  const { bookId } = req.params;
+  const { Coupon: id } = req.body;
+  try {
+    const reqBook = await db.books.findByPk(bookId);
+    const reqCoupon = await db.coupons.findByPk(id);
+    if (cart.length > 0 && reqCoupon) {
+      const alreadyCouponAppliedBooks = cart.filter(
+        (book) => book.appliedCoupon.length != ""
+      );
+      if (alreadyCouponAppliedBooks.length < 1) {
+        cart.forEach((book) => {
+          if (book.id == bookId) {
+            if (book.appliedCoupon.length < 2) {
+              if (reqCoupon.Coupon_Type === "Fixed") {
+                book.payableAmount =
+                  book.payableAmount - reqCoupon.Coupon_Offer;
+              } else if (reqCoupon.Coupon_Type === "Percentage") {
+                book.payableAmount =
+                  book.payableAmount -
+                  reqBook.Price * (reqCoupon.Coupon_Offer / 100);
+              }
+              book.appliedCoupon = {
+                id: reqCoupon.id,
+                Name: reqCoupon.Name,
+                Code: reqCoupon.Code,
+              };
+            } else {
+              console.log(`else  :`);
+              req.flash("error", "you already have a coupon applied");
+            }
+          }
+        });
+      } else {
+        req.flash("error", "you can only apply one coupon at a time");
+      }
+      req.session.cart = cart;
+      res.redirect("/users/cart/show");
+    } else {
+      res.send("either no cart or no coupon");
+    }
+  } catch (error) {
+    console.log(error);
+    res.send("error in applying coupon");
+  }
+};
+
 module.exports = {
   renderPurchaseList,
   sortByBooksPrice,
@@ -190,4 +299,6 @@ module.exports = {
   deleteCart,
   renderOrderPage,
   checkoutCart,
+  fetchCoupons,
+  applyCoupon,
 };

@@ -28,3 +28,33 @@
     },
   },
 ];
+[
+  {
+    id: "6",
+    quantity: 1,
+    price: 240,
+    appliedCoupon: "",
+    payableAmount: 240,
+  },
+  {
+    id: "7",
+    quantity: 1,
+    price: 170,
+    appliedCoupon: "",
+    payableAmount: 170,
+  },
+  {
+    id: "8",
+    quantity: 1,
+    price: 420,
+    appliedCoupon: "",
+    payableAmount: 420,
+  },
+  {
+    id: "8",
+    quantity: 1,
+    price: 420,
+    appliedCoupon: "",
+    payableAmount: 420,
+  },
+];

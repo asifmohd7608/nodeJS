@@ -10,6 +10,8 @@ const {
   renderOrderPage,
   checkoutCart,
   sortByBooksPrice,
+  fetchCoupons,
+  applyCoupon,
 } = require("../controllers/userController");
 
 router.get("/purchase", checkIsLoggedinCustomer, renderPurchaseList);
@@ -25,5 +27,7 @@ router.get(
 router.get("/cart/:id/delete", checkIsLoggedinCustomer, deleteFromCart);
 router.get("/cart/delete", checkIsLoggedinCustomer, deleteCart);
 router.get("/cart/checkout", checkIsLoggedinCustomer, checkoutCart);
+router.get("/fetchcoupons/:id", fetchCoupons);
+router.post("/cart/applycoupon/:bookId", applyCoupon);
 
 module.exports = router;
